@@ -1,91 +1,61 @@
+#include "csv.hpp" // Include the csv-parser header
 #include <fstream>
 #include <iostream>
-#include <vector>
-
-#include "split.h"
-
-using namespace std;
+#include <string>
 
 int main(int argc, char *argv[]) {
-  if (argc < 2) {
-    std::cerr << "Usage: " << argv[0] << " <number>" << std::endl;
+  if (argc < 3) {
+    std::cerr << "Usage: " << argv[0] << " <input_file.csv> <output_file.csv>"
+              << std::endl;
     return 1;
   }
 
-  string inputFilepath = argv[1];
-  string outputFilepath = "output.csv";
+  std::string inputFilePath = argv[1];
+  std::string outputFilePath = argv[2];
 
-  std::ifstream inputFile(inputFilepath);
-  std::ofstream outputFile(outputFilepath);
+  try {
+    csv::CSVReader reader(inputFilePath);
 
-  if (!inputFile.is_open()) {
-    std::cerr << "Error: could not open file " << inputFilepath << std::endl;
-    return 1;
-  }
-
-  if (!outputFile.is_open()) {
-    std::cerr << "Error: could not open file " << outputFilepath << std::endl;
-    return 1;
-  }
-
-  string line;
-  int lineCount = 0;
-  int variantCompareAtIndex = -1;
-  int variantPriceIndex = -1;
-
-  while (getline(inputFile, line)) {
-    // std::cout << "Processing line: " << line << std::endl;
-    vector<string> columns = split(line, ',');
-    // std::cout << lineCount << ". Number of columns: " << columns.size() << " : " << line  << std::endl;
-
-    // if (lineCount == 201) {
-    //     std::cout << "debug" << std::endl;
-    // }
-
-    if (lineCount == 0) {
-
-      for (size_t i = 0; i < columns.size(); i++) {
-        if (columns[i] == "Variant Compare At Price") {
-          variantCompareAtIndex = i;
-        }
-        if (columns[i] == "Variant Price") {
-          variantPriceIndex = i;
-        }
-      }
-
-      if (variantCompareAtIndex == -1 || variantPriceIndex == -1) {
-        std::cerr << "Required columns not found." << std::endl;
-        return 1;
-      }
-
-    } else {
-      // std::cout << "Processing line " << lineCount << std::endl;
-      // std::cout << "Variant Compare At Price: " << columns[variantCompareAtIndex]
-      //       << std::endl;
-      // std::cout << "Variant Price: " << columns[variantPriceIndex] << std::endl;
-      // swap compare at price and price
-      std::swap(columns[variantCompareAtIndex], columns[variantPriceIndex]);
+    // Get index of the columns
+    int variantCompareAtIndex = reader.index_of("Variant Compare At Price");
+    int variantPriceIndex = reader.index_of("Variant Price");
+    if (variantCompareAtIndex == -1 || variantPriceIndex == -1) {
+      std::cerr << "Error: CSV does not contain required columns." << std::endl;
+      return 1;
     }
 
-    // write to output file
-    for (size_t i = 0; i < columns.size(); i++) {
-      outputFile << columns[i];
-
-      // add comma if not last column
-      if (i < columns.size() - 1) {
-        outputFile << ",";
-      }
+    std::ofstream outputFile(outputFilePath);
+    if (!outputFile.is_open()) {
+      std::cerr << "Error: could not open file " << outputFilePath << std::endl;
+      return 1;
     }
-    outputFile << "\n";
 
-    lineCount++;
+    // Write the header
+    outputFile << "Variant Compare At Price,Variant Price" << std::endl;
+
+    // Read and process each row
+    for (csv::CSVRow &row : reader) {
+      // Swap the values
+      std::string temp = row[variantCompareAtIndex].get<>();
+      row[variantCompareAtIndex].get<>() = row[variantPriceIndex].get<>();
+      row[variantPriceIndex].get<>() = temp;
+
+      // Write the modified row to the output file
+      for (int i = 0; i < row.size(); ++i) {
+        outputFile << row[i].get<>();
+        if (i < row.size() - 1)
+          outputFile << ",";
+      }
+      outputFile << std::endl;
+    }
+
+    outputFile.close();
+  } catch (const std::exception &e) {
+    std::cerr << "Error: " << e.what() << std::endl;
+    return 1;
   }
 
-  inputFile.close();
-  outputFile.close();
-
-  std::cout << "Processing completed. Output file: " << outputFilepath
+  std::cout << "File processing completed. Output file: " << outputFilePath
             << std::endl;
-
   return 0;
 }

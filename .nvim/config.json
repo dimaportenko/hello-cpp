@@ -1,6 +1,6 @@
 {
   "commands": {
     "test": "cd build && cmake .. && make && ./tests/split_test",
-    "run": "cd build && cmake .. && make && ./HelloWorld /Users/dmitriyportenko/Downloads/gomarketplace/floors_export.csv"
+    "run": "cd build && cmake .. && make && ./HelloWorld /Users/dmitriyportenko/Downloads/gomarketplace/floors_export.csv output.csv"
   }
 }
