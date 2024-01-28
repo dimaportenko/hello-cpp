@@ -1,6 +1,11 @@
-cmake_minimum_required(VERSION 3.21)
-project(HelloWorld)
+# src/CMakeLists.txt
 
-set(CMAKE_CXX_STANDARD 20)
+# Add the utils subdirectory
+add_subdirectory(utils)
 
-add_executable(${PROJECT_NAME} main.cpp split.cpp)
+# Create the main executable
+add_executable(HelloWorld main.cpp)
+
+# Link the executable with the utils library
+target_link_libraries(HelloWorld PRIVATE utils)
+

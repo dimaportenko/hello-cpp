@@ -1,4 +1,4 @@
-#include "../src/split.h"
+#include "split.h"
 #include <cassert>
 #include <iostream>
 
