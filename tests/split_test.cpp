@@ -43,6 +43,19 @@ void testSplit() {
     assert(result == expected && "Test case 5 failed");
   }
 
+  // Test case 6: several delimiters in a row
+  {
+    std::vector<std::string> result = split("a,,,c", ',');
+    std::vector<std::string> expected = {
+        "a", "", "",
+        "c"}; // Depends on how you want to handle leading delimiters
+    // std::cout << "Result: " << result.size() << std::endl;
+    for (auto &s : result) {
+      std::cout << s << std::endl;
+    }
+    assert(result == expected && "Test case 6 failed");
+  }
+
   std::cout << "All test cases passed.\n";
 }
 
